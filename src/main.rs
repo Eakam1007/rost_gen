@@ -1,4 +1,4 @@
-use std::{env};
+use std::{env, fs};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -17,7 +17,21 @@ fn main() {
         println!("Options:");
         println!("\t-v, --version\t\t\tPrint the tool name and version");
         println!("\t-h, --help\t\t\tPrint help message");
-    } else {
-        println!("Invalid option {}", option_arg);
+    } else if option_arg == "-i" || option_arg == "--input" {
+        let file_path = &args[2];
+        // let contents = fs::read_to_string(file_path).expect("Failed to read file");
+
+        // fs::remove_dir_all("./dist").expect("Failed to create output directory");
+        // fs::create_dir_all("./dist").expect("Failed to create output directory");
+
+        let html_file_name: String;
+        match file_path.rfind('/') {
+            None => html_file_name = file_path.chars().take(file_path.chars().count() - 4).collect(),
+            Some(n) => html_file_name = file_path.chars().skip(n + 1).take(file_path.chars().count() - (n + 5)).collect(),
+        };
+        
+        println!("New file name: {html_file_name}.html");
+        println!("New file path: ./dist/{html_file_name}.html");
+        // fs::write("./dist/{html_file_name}.html", contents).expect("Failed to generate html file");
     }
 }
