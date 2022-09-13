@@ -11,7 +11,7 @@ fn main() {
     let option_arg = &args[1];
 
     if option_arg == "-v" || option_arg == "--version" {
-        println!("Version 0.1");
+        println!("rost_gen version 0.1");
     } else {
         println!("Invalid option {}", option_arg);
     }
