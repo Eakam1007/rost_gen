@@ -1,4 +1,5 @@
-use std::{env, fs};
+use std::{env, fs, path};
+use std::io::{self, BufRead};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -18,20 +19,41 @@ fn main() {
         println!("\t-v, --version\t\t\tPrint the tool name and version");
         println!("\t-h, --help\t\t\tPrint help message");
     } else if option_arg == "-i" || option_arg == "--input" {
-        let file_path = &args[2];
-        // let contents = fs::read_to_string(file_path).expect("Failed to read file");
+        let input_path = &args[2];
+        let path =  path::Path::new(input_path);
 
-        // fs::remove_dir_all("./dist").expect("Failed to create output directory");
-        // fs::create_dir_all("./dist").expect("Failed to create output directory");
+        if !path.exists() {
+            println!("Invalid path: No file or directory found at {input_path}");
+            return;
+        }
 
-        let html_file_name: String;
-        match file_path.rfind('/') {
-            None => html_file_name = file_path.chars().take(file_path.chars().count() - 4).collect(),
-            Some(n) => html_file_name = file_path.chars().skip(n + 1).take(file_path.chars().count() - (n + 5)).collect(),
-        };
+        if path::Path::new("./dist").exists() {
+            fs::remove_dir_all("./dist").expect("Delete existing output directory")
+        }
+        fs::create_dir_all("./dist").expect("Create output directory");
         
-        println!("New file name: {html_file_name}.html");
-        println!("New file path: ./dist/{html_file_name}.html");
-        // fs::write("./dist/{html_file_name}.html", contents).expect("Failed to generate html file");
+        if path.is_dir() {
+            let dir = fs::read_dir(input_path);
+            println!("WIP");
+            return;
+        }
+
+        if path.is_file() {
+            if path.extension().unwrap().to_str().unwrap() != "txt" { 
+                println!("Only .txt files are accepted");
+            }
+    
+            let in_file = fs::File::open(input_path).expect(&format!("Open file at {input_path}"));
+            let mut buf_reader = io::BufReader::new(in_file);
+            let html_file_name = path.file_stem().unwrap().to_str().unwrap();
+            let mut read_buffer = String::new();
+            let mut read_bytes: u64 = 0;
+    
+            while read_bytes < fs::metadata(input_path).expect("Read input file").len() {
+                read_bytes += buf_reader.read_line(&mut read_buffer).expect("Read input file") as u64;
+                fs::write(format!("./dist/{html_file_name}.html"), read_buffer.clone()).expect("Generate html file");
+            }
+        }
+        
     }
 }
