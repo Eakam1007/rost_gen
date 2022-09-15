@@ -73,7 +73,6 @@ fn main() {
                 if read_buffer.eq("\n") || read_buffer.eq("\r\n") {
                     write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
                 }
-                println!("{read_buffer:?}");
                 write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
             }
             writeln!(out_file, "\n\t</p>\n</body>\n</html>").expect("Generate html file");
