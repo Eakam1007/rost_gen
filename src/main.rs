@@ -50,7 +50,7 @@ fn main() {
             }
 
             let in_file = fs::File::open(input_path).expect(&format!("Open file at {input_path}"));
-            let html_template =
+            let mut html_template =
                 fs::read_to_string("./output_template.html").expect("Read template file");
             let mut buf_reader = io::BufReader::new(in_file);
             let html_file_name = path.file_stem().unwrap().to_str().unwrap();
@@ -62,7 +62,8 @@ fn main() {
                 .open(format!("./dist/{html_file_name}.html"))
                 .expect("Generate html file");
 
-            writeln!(out_file, "{}", html_template).expect("Generate html file");
+            html_template = html_template.replace("{{title}}", html_file_name);
+            write!(out_file, "{}", html_template).expect("Generate html file");
 
             while read_bytes < fs::metadata(input_path).expect("Read input file").len() {
                 read_buffer.clear();
