@@ -65,12 +65,17 @@ fn main() {
             writeln!(out_file, "{}", html_template).expect("Generate html file");
 
             while read_bytes < fs::metadata(input_path).expect("Read input file").len() {
+                read_buffer.clear();
                 read_bytes += buf_reader
                     .read_line(&mut read_buffer)
                     .expect("Read input file") as u64;
-                writeln!(out_file, "{}", read_buffer.clone()).expect("Generate html file");
+                if read_buffer.eq("\n") || read_buffer.eq("\r\n") {
+                    write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
+                }
+                println!("{read_buffer:?}");
+                write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
             }
-            writeln!(out_file, "</body>\n</html>").expect("Generate html file");
+            writeln!(out_file, "\n\t</p>\n</body>\n</html>").expect("Generate html file");
         }
     } else {
         println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
