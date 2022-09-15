@@ -5,7 +5,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        println!("WIP");
+        println!("Please specify an option. Run rost_gen [-h | --help] for a list of options");
         return;
     }
 
@@ -19,6 +19,11 @@ fn main() {
         println!("\t-v, --version\t\t\tPrint the tool name and version");
         println!("\t-h, --help\t\t\tPrint help message");
     } else if option_arg == "-i" || option_arg == "--input" {
+        if args.len() > 3 {
+            println!("Please provide a single file or folder path. Enclose paths with spaces in single quotes");
+            return;
+        }
+
         let input_path = &args[2];
         let path =  path::Path::new(input_path);
 
@@ -41,6 +46,7 @@ fn main() {
         if path.is_file() {
             if path.extension().unwrap().to_str().unwrap() != "txt" { 
                 println!("Only .txt files are accepted");
+                return;
             }
     
             let in_file = fs::File::open(input_path).expect(&format!("Open file at {input_path}"));
@@ -54,6 +60,7 @@ fn main() {
                 fs::write(format!("./dist/{html_file_name}.html"), read_buffer.clone()).expect("Generate html file");
             }
         }
-        
+    } else {
+        println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
     }
 }
