@@ -38,46 +38,57 @@ fn main() {
         fs::create_dir_all("./dist").expect("Create output directory");
 
         if path.is_dir() {
-            let dir = fs::read_dir(input_path);
-            println!("WIP");
-            return;
+            let dir = fs::read_dir(input_path).expect("Read input directory");
+            convert_files_in_directory(dir);
         }
 
         if path.is_file() {
-            if path.extension().unwrap().to_str().unwrap() != "txt" {
-                println!("Only .txt files are accepted");
-                return;
-            }
-
-            let in_file = fs::File::open(input_path).expect(&format!("Open file at {input_path}"));
-            let mut html_template =
-                fs::read_to_string("./output_template.html").expect("Read template file");
-            let mut buf_reader = io::BufReader::new(in_file);
-            let html_file_name = path.file_stem().unwrap().to_str().unwrap();
-            let mut read_buffer = String::new();
-            let mut read_bytes: u64 = 0;
-            let mut out_file = fs::OpenOptions::new()
-                .append(true)
-                .create_new(true)
-                .open(format!("./dist/{html_file_name}.html"))
-                .expect("Generate html file");
-
-            html_template = html_template.replace("{{title}}", html_file_name);
-            write!(out_file, "{}", html_template).expect("Generate html file");
-
-            while read_bytes < fs::metadata(input_path).expect("Read input file").len() {
-                read_buffer.clear();
-                read_bytes += buf_reader
-                    .read_line(&mut read_buffer)
-                    .expect("Read input file") as u64;
-                if read_buffer.eq("\n") || read_buffer.eq("\r\n") {
-                    write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
-                }
-                write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
-            }
-            writeln!(out_file, "\n\t</p>\n</body>\n</html>").expect("Generate html file");
+            convert_file(input_path, path);
         }
     } else {
         println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
     }
+}
+
+fn convert_files_in_directory(dir: fs::ReadDir) {
+    for entry in dir {
+        let path_string = &entry.expect("Read directory files").path().to_str().unwrap().to_string();
+        let path = path::Path::new(path_string);
+        convert_file(path_string, path);
+    }
+}
+
+fn convert_file(path_string: &String, path: &path::Path) {
+    if path.extension().unwrap().to_str().unwrap() != "txt" {
+        println!("Only .txt files are accepted");
+        return;
+    }
+
+    let in_file = fs::File::open(path_string).expect(&format!("Open file at {path_string}"));
+    let mut html_template =
+        fs::read_to_string("./output_template.html").expect("Read template file");
+    let mut buf_reader = io::BufReader::new(in_file);
+    let html_file_name = path.file_stem().unwrap().to_str().unwrap();
+    let mut read_buffer = String::new();
+    let mut read_bytes: u64 = 0;
+    let mut out_file = fs::OpenOptions::new()
+        .append(true)
+        .create_new(true)
+        .open(format!("./dist/{html_file_name}.html"))
+        .expect("Generate html file");
+
+    html_template = html_template.replace("{{title}}", html_file_name);
+    write!(out_file, "{}", html_template).expect("Generate html file");
+
+    while read_bytes < fs::metadata(path_string).expect("Read input file").len() {
+        read_buffer.clear();
+        read_bytes += buf_reader
+            .read_line(&mut read_buffer)
+            .expect("Read input file") as u64;
+        if read_buffer.eq("\n") || read_buffer.eq("\r\n") {
+            write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
+        }
+        write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
+    }
+    writeln!(out_file, "\n\t</p>\n</body>\n</html>").expect("Generate html file");
 }
