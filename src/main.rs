@@ -14,13 +14,7 @@ fn main() {
     if option_arg == "-v" || option_arg == "--version" {
         println!("rost_gen version 0.1");
     } else if option_arg == "-h" || option_arg == "--help" {
-        println!("Usage: rost_gen [OPTIONS]");
-        println!("Options:");
-        println!("\t-v, --version\t\t\tPrint the tool name and version");
-        println!("\t-h, --help\t\t\tPrint help message");
-        println!("\t-i, --input [PATH]\n\t\tProvided a txt file path, will generate an html file");
-        println!("\t\tProvided a directory path, will generate html files based on txt files in the directory");
-        println!("\t\tWARNING: Will output to ./dist directory and will delete all existing contents if it already exists")
+        print_help_message();
     } else if option_arg == "-i" || option_arg == "--input" {
         if args.len() > 3 {
             println!("Please provide a single file or folder path. Enclose paths with spaces in single quotes");
@@ -56,6 +50,16 @@ fn main() {
     } else {
         println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
     }
+}
+
+fn print_help_message() {
+    println!("Usage: rost_gen [OPTIONS]");
+    println!("Options:");
+    println!("\t-v, --version\t\t\tPrint the tool name and version");
+    println!("\t-h, --help\t\t\tPrint help message");
+    println!("\t-i, --input [PATH]\n\t\tProvided a txt file path, will generate an html file");
+    println!("\t\tProvided a directory path, will generate html files based on txt files in the directory");
+    println!("\t\tWARNING: Will output to ./dist directory and will delete all existing contents if it already exists");
 }
 
 fn convert_files_in_directory(dir: fs::ReadDir) {
