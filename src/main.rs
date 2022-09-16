@@ -42,7 +42,7 @@ fn handle_conversion(args: &Vec<String>) {
     let path = path::Path::new(input_path);
 
     if !path.exists() {
-        println!("Invalid path: No file or directory found at {input_path}");
+        println!("Invalid path: No file or directory found at '{input_path}'");
         return;
     }
 
