@@ -16,37 +16,7 @@ fn main() {
     } else if option_arg == "-h" || option_arg == "--help" {
         print_help_message();
     } else if option_arg == "-i" || option_arg == "--input" {
-        if args.len() > 3 {
-            println!("Please provide a single file or folder path. Enclose paths with spaces in single quotes");
-            return;
-        }
-
-        let input_path = &args[2];
-        let path = path::Path::new(input_path);
-
-        if !path.exists() {
-            println!("Invalid path: No file or directory found at {input_path}");
-            return;
-        }
-
-        if path::Path::new("./dist").exists() {
-            fs::remove_dir_all("./dist").expect("Delete existing output directory")
-        }
-        fs::create_dir_all("./dist").expect("Create output directory");
-
-        if path.is_dir() {
-            let dir = fs::read_dir(input_path).expect("Read input directory");
-            convert_files_in_directory(dir);
-        }
-
-        if path.is_file() {
-            if path.extension().unwrap().to_str().unwrap() == "txt" {
-                convert_file(input_path, path);    
-            } else {
-                println!("Only .txt files are accepted");
-                return;
-            }
-        }
+        handle_conversion(&args);
     } else {
         println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
     }
@@ -60,6 +30,40 @@ fn print_help_message() {
     println!("\t-i, --input [PATH]\n\t\tProvided a txt file path, will generate an html file");
     println!("\t\tProvided a directory path, will generate html files based on txt files in the directory");
     println!("\t\tWARNING: Will output to ./dist directory and will delete all existing contents if it already exists");
+}
+
+fn handle_conversion(args: &Vec<String>) {
+    if args.len() > 3 {
+        println!("Please provide a single file or folder path. Enclose paths with spaces in single quotes");
+        return;
+    }
+
+    let input_path = &args[2];
+    let path = path::Path::new(input_path);
+
+    if !path.exists() {
+        println!("Invalid path: No file or directory found at {input_path}");
+        return;
+    }
+
+    if path::Path::new("./dist").exists() {
+        fs::remove_dir_all("./dist").expect("Delete existing output directory")
+    }
+    fs::create_dir_all("./dist").expect("Create output directory");
+
+    if path.is_dir() {
+        let dir = fs::read_dir(input_path).expect("Read input directory");
+        convert_files_in_directory(dir);
+    }
+
+    if path.is_file() {
+        if path.extension().unwrap().to_str().unwrap() == "txt" {
+            convert_file(input_path, path);    
+        } else {
+            println!("Only .txt files are accepted");
+            return;
+        }
+    }
 }
 
 fn convert_files_in_directory(dir: fs::ReadDir) {
