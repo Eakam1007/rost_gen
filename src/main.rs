@@ -58,7 +58,7 @@ fn handle_conversion(args: &Vec<String>) {
 
     if path.is_file() {
         if path.extension().unwrap().to_str().unwrap() == "txt" {
-            convert_file(input_path, path);    
+            convert_file(input_path, path);
         } else {
             println!("Only .txt files are accepted");
             return;
@@ -68,7 +68,12 @@ fn handle_conversion(args: &Vec<String>) {
 
 fn convert_files_in_directory(dir: fs::ReadDir) {
     for entry in dir {
-        let path_string = &entry.expect("Read directory files").path().to_str().unwrap().to_string();
+        let path_string = &entry
+            .expect("Read directory files")
+            .path()
+            .to_str()
+            .unwrap()
+            .to_string();
         let path = path::Path::new(path_string);
         convert_file(path_string, path);
     }
