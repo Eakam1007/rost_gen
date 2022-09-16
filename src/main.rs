@@ -23,9 +23,9 @@ fn main() {
 }
 
 fn print_help_message() {
-    println!("Usage: rost_gen [OPTIONS]");
+    println!("Usage: ./rost_gen[.exe] [OPTIONS]");
     println!("Options:");
-    println!("\t-v, --version\t\t\tPrint the tool name and version");
+    println!("\t-v, --version\t\t\tPrint tool name and version");
     println!("\t-h, --help\t\t\tPrint help message");
     println!("\t-i, --input [PATH]\n\t\tProvided a txt file path, will generate an html file");
     println!("\t\tProvided a directory path, will generate html files based on txt files in the directory");
