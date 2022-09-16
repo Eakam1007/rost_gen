@@ -18,6 +18,9 @@ fn main() {
         println!("Options:");
         println!("\t-v, --version\t\t\tPrint the tool name and version");
         println!("\t-h, --help\t\t\tPrint help message");
+        println!("\t-i, --input [PATH]\n\t\tProvided a txt file path, will generate an html file");
+        println!("\t\tProvided a directory path, will generate html files based on txt files in the directory");
+        println!("\t\tWARNING: Will output to ./dist directory and will delete all existing contents if it already exists")
     } else if option_arg == "-i" || option_arg == "--input" {
         if args.len() > 3 {
             println!("Please provide a single file or folder path. Enclose paths with spaces in single quotes");
@@ -43,7 +46,12 @@ fn main() {
         }
 
         if path.is_file() {
-            convert_file(input_path, path);
+            if path.extension().unwrap().to_str().unwrap() == "txt" {
+                convert_file(input_path, path);    
+            } else {
+                println!("Only .txt files are accepted");
+                return;
+            }
         }
     } else {
         println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
@@ -60,7 +68,6 @@ fn convert_files_in_directory(dir: fs::ReadDir) {
 
 fn convert_file(path_string: &String, path: &path::Path) {
     if path.extension().unwrap().to_str().unwrap() != "txt" {
-        println!("Only .txt files are accepted");
         return;
     }
 
