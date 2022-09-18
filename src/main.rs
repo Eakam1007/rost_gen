@@ -1,6 +1,8 @@
 use std::io::{self, BufRead, Write};
 use std::{env, fs, path};
 
+const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>{{title}}</title>\n</head>\n<body>\n\t<p>\n";
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -85,8 +87,6 @@ fn convert_file(path_string: &String, path: &path::Path) {
     }
 
     let in_file = fs::File::open(path_string).expect(&format!("Open file at {path_string}"));
-    let mut html_template =
-        fs::read_to_string("./output_template.html").expect("Read template file");
     let mut buf_reader = io::BufReader::new(in_file);
     let html_file_name = path.file_stem().unwrap().to_str().unwrap();
     let mut read_buffer = String::new();
@@ -97,8 +97,12 @@ fn convert_file(path_string: &String, path: &path::Path) {
         .open(format!("./dist/{html_file_name}.html"))
         .expect("Generate html file");
 
-    html_template = html_template.replace("{{title}}", html_file_name);
-    write!(out_file, "{}", html_template).expect("Generate html file");
+    write!(
+        out_file,
+        "{}",
+        HTML_TEMPLATE.replace("{{title}}", html_file_name)
+    )
+    .expect("Generate html file");
 
     while read_bytes < fs::metadata(path_string).expect("Read input file").len() {
         read_buffer.clear();
