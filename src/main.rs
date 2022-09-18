@@ -2,6 +2,7 @@ use std::io::{self, BufRead, Write};
 use std::{env, fs, path};
 
 const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>{{title}}</title>\n</head>\n<body>\n\t<p>\n";
+const VERSION: &str = "rost_gen version 0.1";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -14,7 +15,7 @@ fn main() {
     let option_arg = &args[1];
 
     if option_arg == "-v" || option_arg == "--version" {
-        println!("rost_gen version 0.1");
+        println!("{VERSION}");
     } else if option_arg == "-h" || option_arg == "--help" {
         print_help_message();
     } else if option_arg == "-i" || option_arg == "--input" {
