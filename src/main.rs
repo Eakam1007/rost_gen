@@ -36,8 +36,8 @@ fn print_help_message() {
 }
 
 fn handle_conversion(args: &Vec<String>) {
-    if args.len() > 3 {
-        println!("Please provide a single file or folder path. Enclose paths with spaces in single quotes");
+    if args.len() != 3 {
+        println!("Please provide a file or folder path. Enclose paths with spaces in single quotes");
         return;
     }
 
