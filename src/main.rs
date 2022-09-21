@@ -172,8 +172,11 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
             write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
         }
         }
-        
+
         if path.extension().unwrap().to_str().unwrap() == "md"{
+            if read_buffer == "\n" || read_buffer == "\r\n" {
+                write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
+            }
         if read_buffer.starts_with("# ") {
             read_buffer.remove(0);
             read_buffer.remove(0);
