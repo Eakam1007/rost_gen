@@ -165,16 +165,26 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
     
         // Add paragraph tags if line is an empty line
         // Empty line indicate end of current paragraph and start of next paragraph
+        if path.extension().unwrap().to_str().unwrap() == "txt"{
         if read_buffer == "\n" || read_buffer == "\r\n" {
             write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
+        }else{
+            write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
         }
+        }
+        if path.extension().unwrap().to_str().unwrap() == "md"{
         if read_buffer.starts_with("# ") {
             read_buffer.remove(0);
             read_buffer.remove(0);
             write!(out_file, "<h1>\n{read_buffer}</h1>\n").expect("Generate html file");
-        }
+
+        }else{
         write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
+    }
+
+}
         
+    
     }
 
     // Write closing tags for html file
