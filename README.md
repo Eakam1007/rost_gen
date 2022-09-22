@@ -66,15 +66,15 @@ This will create the optimized build in the ./target/release directory. Run the 
   </p>
   ```
 - ### Header detection for .md files  
-```
-# This line is header
-```
-will be converted to
-```
- <h1>
+  ```
+  # This line is header
+  ```
+  will be converted to
+  ```
+  <h1>
     This line is header
   </h1>
-```
+  ```
 
 # Examples
 - ### One input file
