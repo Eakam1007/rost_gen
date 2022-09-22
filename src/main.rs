@@ -1,7 +1,7 @@
 use std::io::{self, BufRead, Seek, Write};
 use std::{env, fs, path};
 
-const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>\n\t\t{{title}}\n\t</title>\n</head>\n<body>\n";
+const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\t<title>\n\t\t{{title}}\t</title>\n</head>\n<body>\n";
 const VERSION: &str = "rost_gen version 0.1";
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
@@ -166,18 +166,10 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
         // Empty line indicate end of current paragraph and start of next paragraph
         if path.extension().unwrap().to_str().unwrap() == "txt"{
         if read_buffer == "\n" || read_buffer == "\r\n" {
-            write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
+            write!(out_file, "\t</p>\n\t<p>\n").expect("Generate html file");
         }else{
             write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
         }
-        }
-
-        if path.extension().unwrap().to_str().unwrap() == "txt" {
-            if read_buffer == "\n" || read_buffer == "\r\n" {
-                write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
-            } else {
-                write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
-            }
         }
         if path.extension().unwrap().to_str().unwrap() == "md" {
             if read_buffer == "\n" || read_buffer == "\r\n" {
