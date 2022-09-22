@@ -20,7 +20,7 @@ This will create the optimized build in the ./target/release directory. Run the 
 | ------------- | ------------- |
 | -v, --version  | Print tool name and version  |
 | -h, --help  | Print help message with a list of options  |
-| -i, --input [PATH] | Provided a path to a text(.txt) and Markdown (.md) files, generate an html file <br> Provided a path to a directory, generate html files for all text(.txt) and Markdown (.md) files in that directory<br><strong>Warning: will output generated html files to the ./dist directory, replacing any existing content</strong> <br><br> Optionally use with the -o, --output flag to specify an output directory:<br> ``-i, --input [INPUT_PATH] -o, --output  [OUTPUT_PATH]``<br><br>This will not delete any existing content in the specified directory. If the directory doesn't exist, it will be created|
+| -i, --input [PATH] | Provided a path to a text(.txt) or Markdown (.md) file, generate an html file <br> Provided a path to a directory, generate html files for all text(.txt) and Markdown (.md) files in that directory<br><strong>Warning: will output generated html files to the ./dist directory, replacing any existing content</strong> <br><br> Optionally use with the -o, --output flag to specify an output directory:<br> ``-i, --input [INPUT_PATH] -o, --output  [OUTPUT_PATH]``<br><br>This will not delete any existing content in the specified directory. If the directory doesn't exist, it will be created|
 
 # Features
 - ### Specify a title in text and Markdown files  
