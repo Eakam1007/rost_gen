@@ -65,12 +65,26 @@ This will create the optimized build in the ./target/release directory. Run the 
     Second line of second paragraph
   </p>
   ```
+  ### Header detection for .md files
+```
+# This line is header
+```
+will be converted to
+```
+<h1>
+    This line is header
+</h1>
+```
 
 # Examples
 - ### One input file
   To convert the "file_to_convert.txt" in current directory:
   ```
   ./rost_gen --input ./file_to_convert.txt
+  ```
+  or to convert "file_to_convert.md" in current directory:
+    ```
+  ./rost_gen --input ./file_to_convert.md
   ```
 - ### One or multiple input files in a directory
   To convert all .txt files in the "folder_with_input_files directory" in the current directory:
