@@ -2,7 +2,7 @@ use std::io::{self, BufRead, Seek, Write};
 use std::{env, fs, path};
 
 const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\t<title>\n\t\t{{title}}\t</title>\n</head>\n<body>\n";
-const VERSION: &str = "rost_gen version 0.1";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
 fn main() {
@@ -16,7 +16,7 @@ fn main() {
     let option_arg = &args[1];
 
     if option_arg == "-v" || option_arg == "--version" {
-        println!("{VERSION}");
+        println!("rost_gen {VERSION}");
     } else if option_arg == "-h" || option_arg == "--help" {
         print_help_message();
     } else if option_arg == "-i" || option_arg == "--input" {
