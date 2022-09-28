@@ -60,6 +60,7 @@ fn handle_conversion(args: &Vec<String>) {
 
     if path.is_dir() {
         let dir = fs::read_dir(input_path).expect("Read input directory");
+        println!("Converting files in directory at {input_path}");
         convert_files_in_directory(dir, &output_dir_path);
     }
 
@@ -71,6 +72,8 @@ fn handle_conversion(args: &Vec<String>) {
             return;
         }
     }
+
+    println!("Conversion successful. Output file(s) placed in directory at {output_dir_path}");
 }
 
 fn create_output_directory(args: &Vec<String>, output_dir_path: &mut String) {
@@ -110,6 +113,8 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
     if path.extension().unwrap().to_str().unwrap() != "txt" && path.extension().unwrap().to_str().unwrap() != "md" {
         return;
     }
+    
+    println!("Converting file at {path_string}");
 
     // Variables to read input file
     let in_file = fs::File::open(path_string).expect(&format!("Open file at {path_string}"));
