@@ -1,53 +1,31 @@
+use clap::Parser;
 use std::io::{self, BufRead, Seek, Write};
-use std::{env, fs, path};
+use std::{fs, path};
 
 const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\t<title>\n\t\t{{title}}\t</title>\n</head>\n<body>\n";
-const VERSION: &str = env!("CARGO_PKG_VERSION");
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Convert file/files in directory at INPUT_PATH into html files, outputting into ./dist directory by default (deleting existing contents)
+    #[arg(short, long, value_name = "INPUT_PATH")]
+    input: String,
+
+    /// Optional: Output generated files to directory at OUTPUT_PATH
+    #[arg(short, long, value_name = "OUTPUT_PATH", default_value = DEFAULT_OUTPUT_DIR)]
+    output: String,
+}
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    // let args: Vec<String> = env::args().collect();
+    let args = Args::parse();
 
-    if args.len() < 2 {
-        println!("Please specify an option. Run rost_gen [-h | --help] for a list of options");
-        return;
-    }
-
-    let option_arg = &args[1];
-
-    if option_arg == "-v" || option_arg == "--version" {
-        println!("rost_gen {VERSION}");
-    } else if option_arg == "-h" || option_arg == "--help" {
-        print_help_message();
-    } else if option_arg == "-i" || option_arg == "--input" {
-        handle_conversion(&args);
-    } else {
-        println!("Invalid option. Run rost_gen [-h | --help] for a list of options");
-    }
+    handle_conversion(&args);
 }
 
-fn print_help_message() {
-    println!("Usage: ./rost_gen[.exe] [OPTIONS]");
-    println!("Options:");
-    println!("\t-v, --version\t\t\tPrint tool name and version");
-    println!("\t-h, --help\t\t\tPrint help message");
-    println!("\t-i, --input [PATH]\n\t\tProvided a txt or md file path, will generate an html file");
-    println!("\t\tProvided a directory path, will generate html files based on txt or md files in the directory");
-    println!("\t\tWARNING: By default, will output to ./dist directory and will delete all existing contents if it already exists");
-    println!("\n\t\tOptional: Use -o, --output [PATH] to output to a specific directory:");
-    println!("\t\t\t-i, --input [INPUT_PATH] -o, --output [OUTPUT_PATH]");
-    println!("\t\t This will not delete existing contents but will create the directory if it doesn't exist");
-}
-
-fn handle_conversion(args: &Vec<String>) {
-    // Handle no input path or
-    // input path with spaces which is not enclosed in quotes
-    if args.len() < 3 || (args.len() > 3 && (args[3] != "-o" && args[3] != "--output")) {
-        println!("Please provide a file or folder path. Enclose paths with spaces in quotes.");
-        return;
-    }
-
-    let input_path = &args[2];
+fn handle_conversion(args: &Args) {
+    let input_path = &args.input;
     let path = path::Path::new(input_path);
 
     if !path.exists() {
@@ -55,18 +33,20 @@ fn handle_conversion(args: &Vec<String>) {
         return;
     }
 
-    let mut output_dir_path = DEFAULT_OUTPUT_DIR.to_string();
-    create_output_directory(args, &mut output_dir_path);
+    let output_dir_path = &args.output;
+    create_output_directory(output_dir_path);
 
     if path.is_dir() {
         let dir = fs::read_dir(input_path).expect("Read input directory");
         println!("Converting files in directory at {input_path}");
-        convert_files_in_directory(dir, &output_dir_path);
+        convert_files_in_directory(dir, output_dir_path);
     }
 
     if path.is_file() {
-        if path.extension().unwrap().to_str().unwrap() == "txt" ||  path.extension().unwrap().to_str().unwrap() == "md" {
-            convert_file(input_path, path, &output_dir_path);
+        if path.extension().unwrap().to_str().unwrap() == "txt"
+            || path.extension().unwrap().to_str().unwrap() == "md"
+        {
+            convert_file(input_path, path, output_dir_path);
         } else {
             println!("Only .txt or .md files are accepted");
             return;
@@ -76,17 +56,7 @@ fn handle_conversion(args: &Vec<String>) {
     println!("Conversion successful. Output file(s) placed in directory at {output_dir_path}");
 }
 
-fn create_output_directory(args: &Vec<String>, output_dir_path: &mut String) {
-    // Warn if -o or --output flag was specified by a path was not
-    // Warn if more than one output path was specified or if output path has spaces
-    if args.len() == 4 && (args[3] == "-o" || args[3] == "--output") {
-        println!("WARNING: Output option specified but no output path specified. Defaulting to {DEFAULT_OUTPUT_DIR}");
-    } else if args.len() > 5 {
-        println!("WARNING: Invalid output path. Enclose output path in quotes if it contains spaces. Defaulting to {DEFAULT_OUTPUT_DIR}")
-    } else if args.len() == 5 {
-        *output_dir_path = args[4].clone();
-    }
-
+fn create_output_directory(output_dir_path: &String) {
     // Delete output dir and its contents if it is the default output dir
     if output_dir_path == DEFAULT_OUTPUT_DIR && path::Path::new(DEFAULT_OUTPUT_DIR).exists() {
         fs::remove_dir_all(DEFAULT_OUTPUT_DIR).expect("Delete existing output directory")
@@ -110,10 +80,12 @@ fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String) {
 
 fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &String) {
     // We only want to convert .txt files
-    if path.extension().unwrap().to_str().unwrap() != "txt" && path.extension().unwrap().to_str().unwrap() != "md" {
+    if path.extension().unwrap().to_str().unwrap() != "txt"
+        && path.extension().unwrap().to_str().unwrap() != "md"
+    {
         return;
     }
-    
+
     println!("Converting file at {path_string}");
 
     // Variables to read input file
@@ -169,18 +141,18 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
             .expect("Read input file") as u64;
         // Add paragraph tags if line is an empty line
         // Empty line indicate end of current paragraph and start of next paragraph
-        if path.extension().unwrap().to_str().unwrap() == "txt"{
-        if read_buffer == "\n" || read_buffer == "\r\n" {
-            write!(out_file, "\t</p>\n\t<p>\n").expect("Generate html file");
-        }else{
-            write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
-        }
+        if path.extension().unwrap().to_str().unwrap() == "txt" {
+            if read_buffer == "\n" || read_buffer == "\r\n" {
+                write!(out_file, "\t</p>\n\t<p>\n").expect("Generate html file");
+            } else {
+                write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
+            }
         }
         if path.extension().unwrap().to_str().unwrap() == "md" {
             if read_buffer == "\n" || read_buffer == "\r\n" {
                 write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
             }
-            
+
             if read_buffer.starts_with("# ") {
                 read_buffer.remove(0);
                 read_buffer.remove(0);
@@ -188,7 +160,7 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
             } else {
                 write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
             }
-        }   
+        }
     }
 
     // Write closing tags for html file
