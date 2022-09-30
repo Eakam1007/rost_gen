@@ -2,7 +2,7 @@ use clap::Parser;
 use std::io::{self, BufRead, Seek, Write};
 use std::{fs, path};
 
-const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\t<title>\n\t\t{{title}}\t</title>\n</head>\n<body>\n";
+const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>\n\t\t{{title}}\n\t</title>\n</head>\n<body>\n";
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
 #[derive(Parser)]
