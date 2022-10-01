@@ -75,6 +75,15 @@ This will create the optimized build in the ./target/release directory. Run the 
     This line is header
   </h1>
   ```
+  
+- ### Thematic Break detection (horizontal rule) for .md files
+  ```txt
+  ---
+  ```
+  will be converted into
+  ```html
+  <hr />
+  ```
 
 # Examples
 - ### One input file
