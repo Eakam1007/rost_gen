@@ -20,7 +20,9 @@ This will create the optimized build in the ./target/release directory. Run the 
 | ------------- | ------------- |
 | -v, --version  | Print tool name and version  |
 | -h, --help  | Print help message with a list of options  |
-| -i, --input [PATH] | Provided a path to a text(.txt) or Markdown (.md) file, generate an html file <br> Provided a path to a directory, generate html files for all text(.txt) and Markdown (.md) files in that directory<br><strong>Warning: will output generated html files to the ./dist directory, replacing any existing content</strong> <br><br> Optionally use with the -o, --output flag to specify an output directory:<br> ``-i, --input [INPUT_PATH] -o, --output  [OUTPUT_PATH]``<br><br>This will not delete any existing content in the specified directory. If the directory doesn't exist, it will be created|
+| -i, --input [PATH] | Provided a path to a text(.txt) or Markdown (.md) file, generate an html file <br> Provided a path to a directory, generate html files for all text(.txt) and Markdown (.md) files in that directory<br><strong>Warning: will output generated html files to the ./dist directory, replacing any existing content</strong>|
+| -o, --output [PATH] | Optional: Use to specify an output directory:<br> ``-i, --input [INPUT_PATH] -o, --output  [OUTPUT_PATH]``<br><br>This will not delete any existing content in the specified directory. If the directory doesn't exist, it will be created|
+| -l, --lang [LANG] | Optional: Use to specify the language (lang attribute of the html tag) of html file. Defaults to "en-CA" |
 
 # Features
 - ### Specify a title in text and Markdown files  
@@ -95,4 +97,13 @@ This will create the optimized build in the ./target/release directory. Run the 
   Output to the "custom_output_dir" in the current directory:
   ```
   ./rost_gen -i ./file_to_convert.txt -o ./custom_output_dir
+  ```
+- ### Specify language for generated html:
+  ```
+  ./rost_gem -i ./file_to_convert.txt -l fr
+  ```
+  This will update the lang tag of the html tag in the generated html file:
+  ```html
+  <html lang="fr">
+  ...
   ```
