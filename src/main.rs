@@ -2,7 +2,7 @@ use clap::Parser;
 use std::io::{self, BufRead, Seek, Write};
 use std::{fs, path};
 
-const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>\n\t\t{{title}}\n\t</title>\n</head>\n<body>\n";
+const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"{{lang}}\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>\n\t\t{{title}}\n\t</title>\n</head>\n<body>\n";
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
 #[derive(Parser)]
@@ -15,6 +15,10 @@ struct Args {
     /// Optional: Output generated files to directory at OUTPUT_PATH
     #[arg(short, long, value_name = "OUTPUT_PATH", default_value = DEFAULT_OUTPUT_DIR)]
     output: String,
+
+    /// Optional: Specify lang attribute of html tag
+    #[arg(short, long, value_name = "LANG", default_value = "en-CA")]
+    lang: String,
 }
 
 fn main() {
@@ -39,14 +43,14 @@ fn handle_conversion(args: &Args) {
     if path.is_dir() {
         let dir = fs::read_dir(input_path).expect("Read input directory");
         println!("Converting files in directory at {input_path}");
-        convert_files_in_directory(dir, output_dir_path);
+        convert_files_in_directory(dir, output_dir_path, &args.lang);
     }
 
     if path.is_file() {
         if path.extension().unwrap().to_str().unwrap() == "txt"
             || path.extension().unwrap().to_str().unwrap() == "md"
         {
-            convert_file(input_path, path, output_dir_path);
+            convert_file(input_path, path, output_dir_path, &args.lang);
         } else {
             println!("Only .txt or .md files are accepted");
             return;
@@ -64,7 +68,7 @@ fn create_output_directory(output_dir_path: &String) {
     fs::create_dir_all(output_dir_path).expect("Create output directory");
 }
 
-fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String) {
+fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String, html_lang: &String) {
     // Iterate over each file in directory, calling the convert file function
     for entry in dir {
         let path_string = &entry
@@ -74,11 +78,16 @@ fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String) {
             .unwrap()
             .to_string();
         let path = path::Path::new(path_string);
-        convert_file(path_string, path, &output_dir_path);
+        convert_file(path_string, path, &output_dir_path, html_lang);
     }
 }
 
-fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &String) {
+fn convert_file(
+    path_string: &String,
+    path: &path::Path,
+    output_dir_path: &String,
+    html_lang: &String,
+) {
     // We only want to convert .txt files
     if path.extension().unwrap().to_str().unwrap() != "txt"
         && path.extension().unwrap().to_str().unwrap() != "md"
@@ -107,20 +116,19 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
         .open(out_file_path)
         .expect("Generate html file");
 
-    // Write the html template, replacing title with the found title or the file name
-    write!(
-        out_file,
-        "{}",
-        HTML_TEMPLATE.replace(
-            "{{title}}",
-            if title.is_empty() {
-                html_file_name
-            } else {
-                title.as_str()
-            }
-        )
-    )
-    .expect("Generate html file");
+    // Replace lang and title in the template with appropriate values
+    // If title was not found, file name will be used instead
+    let html_template = HTML_TEMPLATE.replace("{{lang}}", html_lang).replace(
+        "{{title}}",
+        if title.is_empty() {
+            html_file_name
+        } else {
+            title.as_str()
+        },
+    );
+
+    // Write the html template
+    write!(out_file, "{}", html_template).expect("Generate html file");
 
     // Write the title if found
     if title.is_empty() {
