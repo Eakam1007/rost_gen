@@ -157,6 +157,8 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
                 read_buffer.remove(0);
                 read_buffer.remove(0);
                 write!(out_file, "<h1>\n{read_buffer}</h1>\n").expect("Generate html file");
+            } else if read_buffer == "---\n" || read_buffer == "---\r\n" {
+                write!(out_file, "<hr />\n").expect("Generate html file");
             } else {
                 write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
             }
