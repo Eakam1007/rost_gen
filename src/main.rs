@@ -1,16 +1,35 @@
 use clap::Parser;
+use std::fs::File;
 use std::io::{self, BufRead, Seek, Write};
 use std::{fs, path};
+
+use std::io::BufReader;
+
+extern crate serde_with;
+extern crate serde_json;
+extern crate serde;
+use serde::{Deserialize, Serialize};
+#[derive(Debug, Deserialize, Serialize)]
+#[serde_with::skip_serializing_none]
+struct Config{
+    input: Option<String>,
+    output: Option<String>,
+    lang: Option<String>
+}
 
 const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"{{lang}}\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>\n\t\t{{title}}\n\t</title>\n</head>\n<body>\n";
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
-#[derive(Parser)]
+#[derive(Parser, PartialEq, Default)]
 #[command(author, version, about, long_about = None)]
 struct Args {
+    /// Take config file as argument to parse into system
+    #[arg(short, long, value_name = "CONFIG_PATH")]
+    config: Option <String>,
+
     /// Convert file/files in directory at INPUT_PATH into html files, outputting into ./dist directory by default (deleting existing contents)
     #[arg(short, long, value_name = "INPUT_PATH")]
-    input: String,
+    input: Option<String>,
 
     /// Optional: Output generated files to directory at OUTPUT_PATH
     #[arg(short, long, value_name = "OUTPUT_PATH", default_value = DEFAULT_OUTPUT_DIR)]
@@ -24,33 +43,64 @@ struct Args {
 fn main() {
     // let args: Vec<String> = env::args().collect();
     let args = Args::parse();
-
-    handle_conversion(&args);
+    if let Some (input) = args.input.as_deref(){
+    handle_conversion(input, &args.output, &args.lang);
+    }else if let Some (config) = args.config.as_deref(){
+    handle_config(config);
+    }
 }
 
-fn handle_conversion(args: &Args) {
-    let input_path = &args.input;
-    let path = path::Path::new(input_path);
+fn handle_config(config: &str) {
+    let config_path = config.to_string();
+    let path = path::Path::new(&config_path);
+
+    if !path.exists() {
+        println!("Invalid path: No file or directory found at '{config_path}'");
+        return ;
+    }
+
+    if path.is_file() {
+        if path.extension().unwrap().to_str().unwrap() == "json"{
+            println!("reading json file at  '{config_path}'" );
+            let file = File::open(config_path).unwrap();
+            let reader = BufReader::new(file);
+
+            let construct: Config = serde_json::from_reader(reader).unwrap();
+            let dept_input = construct.input.unwrap_or(" ".to_string());
+            let dept_output = construct.output.unwrap_or(DEFAULT_OUTPUT_DIR.to_string());
+            let dept_lang = construct.lang.unwrap_or("en-CA".to_string());
+
+            handle_conversion(&dept_input, &dept_output, &dept_lang)
+
+        }
+    } else {
+        println!("Only .json files are accepted");
+        return;
+    }
+}
+
+fn handle_conversion(input: &str, output_dir_path: &String, html_lang: &String) {
+    let input_path = input.to_string();
+    let path = path::Path::new(&input_path);
 
     if !path.exists() {
         println!("Invalid path: No file or directory found at '{input_path}'");
         return;
     }
 
-    let output_dir_path = &args.output;
     create_output_directory(output_dir_path);
 
     if path.is_dir() {
-        let dir = fs::read_dir(input_path).expect("Read input directory");
+        let dir = fs::read_dir(&input_path).expect("Read input directory");
         println!("Converting files in directory at {input_path}");
-        convert_files_in_directory(dir, output_dir_path, &args.lang);
+        convert_files_in_directory(dir, output_dir_path, html_lang);
     }
 
     if path.is_file() {
         if path.extension().unwrap().to_str().unwrap() == "txt"
             || path.extension().unwrap().to_str().unwrap() == "md"
         {
-            convert_file(input_path, path, output_dir_path, &args.lang);
+            convert_file(&input_path, path, output_dir_path, html_lang);
         } else {
             println!("Only .txt or .md files are accepted");
             return;

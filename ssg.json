@@ -1,0 +1,5 @@
+{
+  "input": "../../README.md",
+  "output": "./derp",
+  "future-feature": "should be ignored for now"
+}
