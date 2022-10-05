@@ -23,7 +23,7 @@ const DEFAULT_OUTPUT_DIR: &str = "./dist";
 #[derive(Parser, PartialEq, Default)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Take config file as argument to parse into system
+    /// Take config written in JSON file as argument to parse into system 
     #[arg(short, long, value_name = "CONFIG_PATH")]
     config: Option <String>,
 
