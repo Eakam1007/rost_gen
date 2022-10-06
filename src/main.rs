@@ -1,13 +1,11 @@
 use clap::Parser;
 use std::fs::File;
-use std::io::{self, BufRead, Seek, Write};
+use std::io::{self, BufRead, BufReader, Seek, Write};
 use std::{fs, path};
 
-use std::io::BufReader;
-
-extern crate serde_with;
-extern crate serde_json;
 extern crate serde;
+extern crate serde_json;
+extern crate serde_with;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
@@ -20,7 +18,7 @@ struct Config{
 const HTML_TEMPLATE: &str = "<!DOCTYPE html>\n<html lang=\"{{lang}}\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<title>\n\t\t{{title}}\n\t</title>\n</head>\n<body>\n";
 const DEFAULT_OUTPUT_DIR: &str = "./dist";
 
-#[derive(Parser, PartialEq, Default)]
+#[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Take config written in JSON file as argument to parse into system 
@@ -43,10 +41,10 @@ struct Args {
 fn main() {
     // let args: Vec<String> = env::args().collect();
     let args = Args::parse();
-    if let Some (input) = args.input.as_deref(){
-    handle_conversion(input, &args.output, &args.lang);
-    }else if let Some (config) = args.config.as_deref(){
-    handle_config(config);
+    if let Some (input) = args.input.as_deref() {
+        handle_conversion(input, &args.output, &args.lang);
+    } else if let Some (config) = args.config.as_deref() {
+        handle_config(config);
     }
 }
 
@@ -56,12 +54,12 @@ fn handle_config(config: &str) {
 
     if !path.exists() {
         println!("Invalid path: No file or directory found at '{config_path}'");
-        return ;
+        return;
     }
 
     if path.is_file() {
-        if path.extension().unwrap().to_str().unwrap() == "json"{
-            println!("reading json file at  '{config_path}'" );
+        if path.extension().unwrap().to_str().unwrap() == "json" {
+            println!("reading json file at  '{config_path}'");
             let file = File::open(config_path).unwrap();
             let reader = BufReader::new(file);
 
