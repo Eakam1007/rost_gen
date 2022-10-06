@@ -228,12 +228,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "json-rust"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff734fe553d330269c2950c1ae94ef90ae1fe0c289c7253e978c2b63519c8d28"
-
-[[package]]
 name = "libc"
 version = "0.2.134"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -336,7 +330,6 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "command",
- "json-rust",
  "serde",
  "serde_derive",
  "serde_json",
