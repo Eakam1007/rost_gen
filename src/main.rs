@@ -206,7 +206,8 @@ fn convert_file(
             } else if read_buffer == "---\n" || read_buffer == "---\r\n" {
                 write!(out_file, "<hr />\n").expect("Generate html file");
             } else {
-                write!(out_file, "\t\t{}", read_buffer.clone()).expect("Generate html file");
+                let processed_line = process_line_markdown(&read_buffer);
+                write!(out_file, "\t\t{}", processed_line.clone()).expect("Generate html file");
             }
         }
     }
@@ -253,4 +254,8 @@ fn conversion_file_path_valid(path: &path::Path) -> bool {
     }
 
     return false;
+}
+
+fn process_line_markdown(line: &String) -> String {
+    return line.clone();
 }
