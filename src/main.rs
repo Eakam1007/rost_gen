@@ -294,13 +294,11 @@ fn process_link_markdown(line: &String) -> String {
 
     if link_start_found && link_end_found {
         let link_text = &line[link_start..link_end];
-        println!("Link Text: {link_text}");
         let mut link_url = "";
         let mut link_html = LINK_HTML_TEMPLATE.replace("TEXT", link_text);
 
         if link_url_start_found && link_url_end_found {
             link_url = &line[link_url_start..link_url_end];
-            println!("Link URL: {link_url}");
         }
 
         link_html = link_html.replace("URL", link_url);
