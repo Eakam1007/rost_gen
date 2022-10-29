@@ -270,26 +270,28 @@ fn process_link_markdown(line: &String) -> String {
     for (i, &char) in line_bytes.iter().enumerate() {
         if !link_start_found && char == b'[' {
             link_start_found = true;
-            link_start = i;
+            link_start = i + 1;
         }
 
         if link_start_found && !link_end_found && char == b']' {
             link_end_found = true;
-            link_end = i;
+            link_end = i - 1;
         }
 
         if link_start_found && link_end_found {
             if !link_url_start_found && char == b'(' {
                 link_url_start_found = true;
-                link_url_start = i;
+                link_url_start = i + 1;
             }
 
             if link_url_end_found && !link_url_end_found && char == b')' {
                 link_url_end_found = true;
-                link_url_end = i;
+                link_url_end = i - 1;
             }
         }
     }
+
+
 
     return line.clone();
 }
