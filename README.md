@@ -68,7 +68,9 @@ This will create the optimized build in the ./target/release directory. Run the 
     Second line of second paragraph
   </p>
   ```
-- ### Header detection for .md files  
+  
+# Markdown (.md) File Features
+- ### Header detection
   ```
   # This line is header
   ```
@@ -79,14 +81,25 @@ This will create the optimized build in the ./target/release directory. Run the 
   </h1>
   ```
   
-- ### Thematic Break detection (horizontal rule) for .md files
-  ```txt
+- ### Thematic Break detection (horizontal rule)
+  ```
   ---
   ```
   will be converted into
   ```html
   <hr />
   ```
+  This is only supported for lines that just have the above markdown text
+  
+- ### Link Markdown
+  ```
+  [This is a link](https://www.example.com)
+  ```
+  will be converted to 
+  ```html
+  <a href="https://www.example.com">This is a link</a>
+  ```
+  Any text before or after the markdown in the same line will be preserved as is
 
 # Examples
 - ### One input file
