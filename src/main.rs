@@ -206,7 +206,7 @@ fn convert_file(
             } else if read_buffer == "---\n" || read_buffer == "---\r\n" {
                 write!(out_file, "<hr />\n").expect("Generate html file");
             } else {
-                let processed_line = process_line_markdown(&read_buffer);
+                let processed_line = process_link_markdown(&read_buffer);
                 write!(out_file, "\t\t{}", processed_line.clone()).expect("Generate html file");
             }
         }
@@ -256,14 +256,43 @@ fn conversion_file_path_valid(path: &path::Path) -> bool {
     return false;
 }
 
-fn process_line_markdown(line: &String) -> String {
+fn process_link_markdown(line: &String) -> String {
     let line_bytes = line.as_bytes();
     let mut link_start_found = false;
+    let mut link_end_found = false;
+    let mut link_url_start_found = false;
+    let mut link_url_end_found = false;
+    let mut link_start = 0;
+    let mut link_end = 0;
+    let mut link_url_start = 0;
+    let mut link_url_end = 0;
 
     for (i, &char) in line_bytes.iter().enumerate() {
-        if char == b'[' {
+        if !link_start_found && char == b'[' {
             link_start_found = true;
-        } 
+            link_start = i;
+        }
+
+        if link_start_found && !link_end_found && char == b']' {
+            link_end_found = true;
+            link_end = i;
+        }
+
+        if link_start_found && link_end_found {
+            if !link_url_start_found && char == b'(' {
+                link_url_start_found = true;
+                link_url_start = i;
+            }
+
+            if link_url_end_found && !link_url_end_found && char == b')' {
+                link_url_end_found = true;
+                link_url_end = i;
+            }
+        }
+
+        if link_start_found && link_end_found && char == b')' {
+            
+        }
     }
 
     return line.clone();
