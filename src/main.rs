@@ -289,10 +289,6 @@ fn process_link_markdown(line: &String) -> String {
                 link_url_end = i;
             }
         }
-
-        if link_start_found && link_end_found && char == b')' {
-            
-        }
     }
 
     return line.clone();
