@@ -257,6 +257,7 @@ fn conversion_file_path_valid(path: &path::Path) -> bool {
 }
 
 fn process_link_markdown(line: &String) -> String {
+    const LINK_HTML_TEMPLATE : &str = "<a href=\"URL\">TEXT</a>";
     let line_bytes = line.as_bytes();
     let mut link_start_found = false;
     let mut link_end_found = false;
@@ -291,7 +292,29 @@ fn process_link_markdown(line: &String) -> String {
         }
     }
 
+    if link_start_found && link_end_found {
+        let link_text = &line[link_start..link_end];
+        println!("Link Text: {link_text}");
+        let mut link_url = "";
+        let mut link_html = LINK_HTML_TEMPLATE.replace("TEXT", link_text);
 
+        if link_url_start_found && link_url_end_found {
+            link_url = &line[link_url_start..link_url_end];
+            println!("Link URL: {link_url}");
+        }
+
+        link_html = link_html.replace("URL", link_url);
+        
+        if link_start > 1 {
+            link_html = format!("{} {link_html}", &line[0..(link_start-1)]);
+        }
+
+        if (link_end + 1) < (line_bytes.len() - 1) {
+            link_html = format!("{link_html} {}", &line[(link_end + 1)..]);
+        }
+
+        return link_html.clone();
+    }
 
     return line.clone();
 }
