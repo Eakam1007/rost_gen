@@ -306,11 +306,11 @@ fn process_link_markdown(line: &String) -> String {
         link_html = link_html.replace("URL", link_url);
         
         if link_start > 1 {
-            link_html = format!("{} {link_html}", &line[0..(link_start-1)]);
+            link_html = format!("{}{link_html}", &line[0..(link_start-1)]);
         }
 
-        if (link_end + 1) < line_bytes.len() {
-            link_html = format!("{link_html} {}", &line[(link_end + 1)..]);
+        if (link_url_end + 1) < line_bytes.len() {
+            link_html = format!("{link_html}{}", &line[(link_url_end + 1)..]);
         }
 
         return link_html.clone();
