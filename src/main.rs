@@ -257,5 +257,14 @@ fn conversion_file_path_valid(path: &path::Path) -> bool {
 }
 
 fn process_line_markdown(line: &String) -> String {
+    let line_bytes = line.as_bytes();
+    let mut link_start_found = false;
+
+    for (i, &char) in line_bytes.iter().enumerate() {
+        if char == b'[' {
+            link_start_found = true;
+        } 
+    }
+
     return line.clone();
 }
