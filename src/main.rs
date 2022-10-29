@@ -276,18 +276,18 @@ fn process_link_markdown(line: &String) -> String {
 
         if link_start_found && !link_end_found && char == b']' {
             link_end_found = true;
-            link_end = i - 1;
+            link_end = i;
         }
 
-        if link_start_found && link_end_found {
+        if link_end_found {
             if !link_url_start_found && char == b'(' {
                 link_url_start_found = true;
                 link_url_start = i + 1;
             }
 
-            if link_url_end_found && !link_url_end_found && char == b')' {
+            if link_url_start_found && !link_url_end_found && char == b')' {
                 link_url_end_found = true;
-                link_url_end = i - 1;
+                link_url_end = i;
             }
         }
     }
@@ -309,7 +309,7 @@ fn process_link_markdown(line: &String) -> String {
             link_html = format!("{} {link_html}", &line[0..(link_start-1)]);
         }
 
-        if (link_end + 1) < (line_bytes.len() - 1) {
+        if (link_end + 1) < line_bytes.len() {
             link_html = format!("{link_html} {}", &line[(link_end + 1)..]);
         }
 
