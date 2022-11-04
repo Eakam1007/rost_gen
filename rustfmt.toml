@@ -1,4 +1,3 @@
-blank_lines_lower_bound = 1
 max_width = 120
 error_on_line_overflow = true
 wrap_comments = true
