@@ -2,10 +2,6 @@ use clap::Parser;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Seek, Write};
 use std::{fs, path};
-
-extern crate serde;
-extern crate serde_json;
-extern crate serde_with;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
