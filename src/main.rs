@@ -64,18 +64,17 @@ fn handle_config(config: &str) {
     let reader = BufReader::new(file);
 
     let construct: Config = serde_json::from_reader(reader).unwrap();
-    let dept_input = construct.input.unwrap_or(" ".to_string());
-    let dept_output = construct.output.unwrap_or(DEFAULT_OUTPUT_DIR.to_string());
-    let dept_lang = construct.lang.unwrap_or("en-CA".to_string());
+    let dept_input = construct.input.unwrap_or_else(|| " ".to_string());
+    let dept_output = construct.output.unwrap_or_else(|| DEFAULT_OUTPUT_DIR.to_string());
+    let dept_lang = construct.lang.unwrap_or_else(|| "en-CA".to_string());
 
     handle_conversion(&dept_input, &dept_output, &dept_lang)
   } else {
     println!("Only .json files are accepted");
-    return;
   }
 }
 
-fn handle_conversion(input: &str, output_dir_path: &String, html_lang: &String) {
+fn handle_conversion(input: &str, output_dir_path: &String, html_lang: &str) {
   let input_path = input.to_string();
   let path = path::Path::new(&input_path);
 
@@ -110,7 +109,7 @@ fn create_output_directory(output_dir_path: &String) {
   fs::create_dir_all(output_dir_path).expect("Create output directory");
 }
 
-fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String, html_lang: &String) {
+fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String, html_lang: &str) {
   // Iterate over each file in directory, calling the convert file function
   for entry in dir {
     let path_string = &entry
@@ -120,11 +119,11 @@ fn convert_files_in_directory(dir: fs::ReadDir, output_dir_path: &String, html_l
       .unwrap()
       .to_string();
     let path = path::Path::new(path_string);
-    convert_file(path_string, path, &output_dir_path, html_lang);
+    convert_file(path_string, path, output_dir_path, html_lang);
   }
 }
 
-fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &String, html_lang: &String) {
+fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &String, html_lang: &str) {
   // We only want to convert .txt files
   if !conversion_file_path_valid(path) {
     return;
@@ -133,7 +132,7 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
   println!("Converting file at {path_string}");
 
   // Variables to read input file
-  let in_file = fs::File::open(path_string).expect(&format!("Open file at {path_string}"));
+  let in_file = fs::File::open(path_string).unwrap_or_else(|_| panic!("Open file at {path_string}"));
   let mut buf_reader = io::BufReader::new(in_file);
   let mut read_buffer = String::new();
 
@@ -167,7 +166,7 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
 
   // Write the title if found
   if title.is_empty() {
-    write!(out_file, "\t<p>\n").expect("Generate html file");
+    writeln!(out_file, "\t<p>").expect("Generate html file");
   } else {
     write!(out_file, "\t<h1>\n\t\t{title}\t</h1>\n\t<p>\n").expect("Generate html file");
     // Skip the title bytes (first three lines) to prevent printing title twice
@@ -194,10 +193,10 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
         write!(out_file, "\t</p>\n\t<p>").expect("Generate html file");
       }
 
-      if read_buffer.starts_with("# ") {
-        write!(out_file, "<h1>\n{}</h1>\n", &read_buffer[2..]).expect("Generate html file");
+      if let Some(content) = read_buffer.strip_prefix("# ") {
+        write!(out_file, "<h1>\n{}</h1>\n", content).expect("Generate html file");
       } else if read_buffer == "---\n" || read_buffer == "---\r\n" {
-        write!(out_file, "<hr />\n").expect("Generate html file");
+        writeln!(out_file, "<hr />\n").expect("Generate html file");
       } else {
         let processed_line = process_link_markdown(&read_buffer);
         write!(out_file, "\t\t{}", processed_line.clone()).expect("Generate html file");
@@ -211,7 +210,7 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
 
 // returns no of bytes to skip if title is found, otherwise 0
 fn parse_title_from_file(path_string: &String, title: &mut String) -> u64 {
-  let mut buf_reader = io::BufReader::new(fs::File::open(path_string).expect(&format!("Open file at {path_string}")));
+  let mut buf_reader = io::BufReader::new(fs::File::open(path_string).unwrap_or_else(|_| panic!("Open file at {path_string}")));
   let mut line1 = String::new();
   let mut line2 = String::new();
   let mut line3 = String::new();
@@ -232,9 +231,9 @@ fn parse_title_from_file(path_string: &String, title: &mut String) -> u64 {
     && (line3 == "\n" || line3 == "\r\n")
   {
     *title = line1;
-    return read_bytes;
+    read_bytes
   } else {
-    return 0;
+    0
   }
 }
 
@@ -245,7 +244,7 @@ fn conversion_file_path_valid(path: &path::Path) -> bool {
     return true;
   }
 
-  return false;
+  false
 }
 
 fn process_link_markdown(line: &String) -> String {
@@ -303,8 +302,8 @@ fn process_link_markdown(line: &String) -> String {
       link_html = format!("{link_html}{}", &line[(link_url_end + 1)..]);
     }
 
-    return link_html.clone();
+    return link_html;
   }
 
-  return line.clone();
+  line.clone()
 }
