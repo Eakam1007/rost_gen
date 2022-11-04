@@ -210,7 +210,8 @@ fn convert_file(path_string: &String, path: &path::Path, output_dir_path: &Strin
 
 // returns no of bytes to skip if title is found, otherwise 0
 fn parse_title_from_file(path_string: &String, title: &mut String) -> u64 {
-  let mut buf_reader = io::BufReader::new(fs::File::open(path_string).unwrap_or_else(|_| panic!("Open file at {path_string}")));
+  let mut buf_reader =
+    io::BufReader::new(fs::File::open(path_string).unwrap_or_else(|_| panic!("Open file at {path_string}")));
   let mut line1 = String::new();
   let mut line2 = String::new();
   let mut line3 = String::new();
