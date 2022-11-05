@@ -4,5 +4,7 @@
 3. Install rustfmt nightly (if needed): `rustup component add rustfmt --toolchain nightly`
 
 # Style Guidelines
-Before committing, run rustfmt nightly:  
-`cargo +nightly fmt`
+- Run clippy, and fix any warnings or errors:  
+  `cargo clippy`
+- Run rustfmt nightly:  
+  `cargo +nightly fmt`
