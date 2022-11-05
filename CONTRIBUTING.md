@@ -5,6 +5,7 @@
 4. Install clippy: `rustup component add clippy`
 
 # Style Guidelines
+It is recommended to use VSCode and use the recommended extensions.  This will ensure that rustfmt and clippy are run automatically on save.
 - Run clippy, and fix any warnings or errors:  
   `cargo clippy`
 - Run rustfmt nightly:  
