@@ -308,3 +308,168 @@ fn process_link_markdown(line: &String) -> String {
 
   line.clone()
 }
+
+#[cfg(test)]
+mod tests {
+  use std::io::Read;
+
+  use crate::*;
+
+  #[test]
+  fn converts_txt_files() {
+    let input_file_path = path::Path::new("sample.txt");
+    assert!(conversion_file_path_valid(input_file_path));
+  }
+
+  #[test]
+  fn converts_md_files() {
+    let input_file_path = path::Path::new("sample.md");
+    assert!(conversion_file_path_valid(input_file_path));
+  }
+
+  #[test]
+  fn does_not_convert_unsupported_file_types() {
+    let input_file_path = path::Path::new("sample.exe");
+    assert!(!conversion_file_path_valid(input_file_path));
+  }
+
+  #[test]
+  fn parses_title_when_provided() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(output_title, "test\n");
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn returns_title_size_when_found() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    let bytes_read = parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(bytes_read, 7);
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn does_not_change_title_arg_when_no_title() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(output_title, "");
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn returns_zero_when_no_title() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    let bytes_read = parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(bytes_read, 0);
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn processes_one_markdown_link() {
+    let input_line = String::from("[This is text for a link](www.example.com)");
+    let expected_output = "<a href=\"www.example.com\">This is text for a link</a>";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn retains_text_before_link() {
+    let input_line = String::from("Lorem Ipsum[This is text for a link](www.example.com)");
+    let expected_output = "Lorem Ipsum<a href=\"www.example.com\">This is text for a link</a>";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn retains_text_after_link() {
+    let input_line = String::from("[This is text for a link](www.example.com)Lorem Ipsum");
+    let expected_output = "<a href=\"www.example.com\">This is text for a link</a>Lorem Ipsum";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn retains_text_around_link() {
+    let input_line = String::from("Lorem Ipsum[This is text for a link](www.example.com)Dolor Sit");
+    let expected_output = "Lorem Ipsum<a href=\"www.example.com\">This is text for a link</a>Dolor Sit";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn does_not_process_invalid_link_markdown() {
+    let input_line = String::from("[Invalid markdown[(www.example.com)");
+    let expected_output = "[Invalid markdown[(www.example.com)";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn process_link_markdown_returns_empty_string_arg() {
+    assert_eq!(process_link_markdown(&String::from("")), "");
+  }
+
+  #[test]
+  fn creates_html_file() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("html_template_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test").expect("Create test input file");
+
+    convert_file(
+      &test_input_path_string,
+      test_input_path.as_path(),
+      &temp_dir.path().to_path_buf().into_os_string().into_string().unwrap(),
+      "en",
+    );
+
+    let expected_output = HTML_TEMPLATE
+      .replace("{{title}}", "html_template_test")
+      .replace("{{lang}}", "en")
+      + "\t<p>\n\t\ttest\n\n\t</p>\n</body>\n</html>\n";
+    let test_output_file_path = temp_dir.path().join("html_template_test.html");
+    let mut test_output_file = File::open(&test_output_file_path).unwrap();
+    let mut converted_string = String::new();
+    test_output_file
+      .read_to_string(&mut converted_string)
+      .expect("Read test output file");
+
+    assert_eq!(converted_string, expected_output);
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+}
