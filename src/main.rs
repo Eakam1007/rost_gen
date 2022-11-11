@@ -308,3 +308,6 @@ fn process_link_markdown(line: &String) -> String {
 
   line.clone()
 }
+
+#[cfg(test)]
+mod tests {}
