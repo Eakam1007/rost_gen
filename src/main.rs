@@ -311,6 +311,8 @@ fn process_link_markdown(line: &String) -> String {
 
 #[cfg(test)]
 mod tests {
+  use std::io::Read;
+
   use crate::*;
 
   #[test]
@@ -369,5 +371,37 @@ mod tests {
   #[test]
   fn process_link_markdown_returns_empty_string_arg() {
     assert_eq!(process_link_markdown(&String::from("")), "");
+  }
+
+  #[test]
+  fn creates_html_file() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("html_template_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test").expect("Create test input file");
+
+    convert_file(
+      &test_input_path_string,
+      test_input_path.as_path(),
+      &temp_dir.path().to_path_buf().into_os_string().into_string().unwrap(),
+      "en",
+    );
+
+    let expected_output = HTML_TEMPLATE
+      .replace("{{title}}", "html_template_test")
+      .replace("{{lang}}", "en")
+      + "\t<p>\n\t\ttest\n\n\t</p>\n</body>\n</html>\n";
+    let test_output_file_path = temp_dir.path().join("html_template_test.html");
+    let mut test_output_file = File::open(&test_output_file_path).unwrap();
+    let mut converted_string = String::new();
+    test_output_file
+      .read_to_string(&mut converted_string)
+      .expect("Read test output file");
+
+    assert_eq!(converted_string, expected_output);
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
   }
 }
