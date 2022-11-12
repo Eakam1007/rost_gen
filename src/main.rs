@@ -310,4 +310,46 @@ fn process_link_markdown(line: &String) -> String {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+  use crate::process_link_markdown;
+
+  #[test]
+  fn processes_one_markdown_link() {
+    let input_line = String::from("[This is text for a link](www.example.com)");
+    let expected_output = "<a href=\"www.example.com\">This is text for a link</a>";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn retains_text_before_link() {
+    let input_line = String::from("Lorem Ipsum[This is text for a link](www.example.com)");
+    let expected_output = "Lorem Ipsum<a href=\"www.example.com\">This is text for a link</a>";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn retains_text_after_link() {
+    let input_line = String::from("[This is text for a link](www.example.com)Lorem Ipsum");
+    let expected_output = "<a href=\"www.example.com\">This is text for a link</a>Lorem Ipsum";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn retains_text_around_link() {
+    let input_line = String::from("Lorem Ipsum[This is text for a link](www.example.com)Dolor Sit");
+    let expected_output = "Lorem Ipsum<a href=\"www.example.com\">This is text for a link</a>Dolor Sit";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn does_not_process_invalid_link_markdown() {
+    let input_line = String::from("[Invalid markdown[(www.example.com)");
+    let expected_output = "[Invalid markdown[(www.example.com)";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
+  fn process_link_markdown_returns_empty_string_arg() {
+    assert_eq!(process_link_markdown(&String::from("")), "");
+  }
+}
