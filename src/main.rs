@@ -311,7 +311,25 @@ fn process_link_markdown(line: &String) -> String {
 
 #[cfg(test)]
 mod tests {
-  use crate::process_link_markdown;
+  use crate::*;
+
+  #[test]
+  fn converts_txt_files() {
+    let input_file_path = path::Path::new("sample.txt");
+    assert!(conversion_file_path_valid(input_file_path));
+  }
+
+  #[test]
+  fn converts_md_files() {
+    let input_file_path = path::Path::new("sample.md");
+    assert!(conversion_file_path_valid(input_file_path));
+  }
+
+  #[test]
+  fn does_not_convert_unsupported_file_types() {
+    let input_file_path = path::Path::new("sample.exe");
+    assert!(!conversion_file_path_valid(input_file_path));
+  }
 
   #[test]
   fn processes_one_markdown_link() {
