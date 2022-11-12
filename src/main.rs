@@ -334,6 +334,74 @@ mod tests {
   }
 
   #[test]
+  fn parses_title_when_provided() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(output_title, "test\n");
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn returns_title_size_when_found() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    let bytes_read = parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(bytes_read, 7);
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn does_not_change_title_arg_when_no_title() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(output_title, "");
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn returns_zero_when_no_title() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("parse_title_test.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test\n").expect("Create test input file");
+    let mut output_title = String::new();
+
+    let bytes_read = parse_title_from_file(&test_input_path_string, &mut output_title);
+
+    assert_eq!(bytes_read, 0);
+
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
   fn processes_one_markdown_link() {
     let input_line = String::from("[This is text for a link](www.example.com)");
     let expected_output = "<a href=\"www.example.com\">This is text for a link</a>";
