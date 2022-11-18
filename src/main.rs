@@ -1,8 +1,9 @@
 use clap::Parser;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
+use std::fs::{File};
 use std::io::{self, BufRead, BufReader, Seek, Write};
 use std::{fs, path};
+use stdio_override::StdoutOverride;
 #[derive(Debug, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
 struct Config {
@@ -314,7 +315,7 @@ mod tests {
   use std::io::Read;
 
   use crate::*;
-
+  
   #[test]
   fn converts_txt_files() {
     let input_file_path = path::Path::new("sample.txt");
@@ -437,6 +438,13 @@ mod tests {
   }
 
   #[test]
+  fn image_link_test() {
+    let input_line = String::from("[First][Second](www.example.com)");
+    let expected_output = "<a href=\"www.example.com\">First</a>";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
   fn process_link_markdown_returns_empty_string_arg() {
     assert_eq!(process_link_markdown(&String::from("")), "");
   }
@@ -513,6 +521,28 @@ mod tests {
 
     assert_eq!(converted_string, expected_output);
 
+    drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn handle_invalid_config() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path = temp_dir.path().join("test_config.txt");
+    let test_input_path_string = test_input_path.as_os_str().to_str().unwrap().to_string();
+    let mut test_input_file = File::create(&test_input_path).unwrap();
+    writeln!(test_input_file, "test").expect("Create test config file");
+    let expected_output = "Only .json files are accepted\n";
+
+    let file_name = "./output.txt";
+    let guard = StdoutOverride::override_file(file_name).expect("File override failed");
+    handle_config(&test_input_path_string); 
+    let contents = fs::read_to_string(file_name).expect("File read failed");
+    
+    assert!(contents.contains(expected_output));
+    
+    fs::remove_file("./output.txt").expect("File delete");    
+    drop(guard);
     drop(test_input_file);
     temp_dir.close().expect("Delete test directory");
   }
