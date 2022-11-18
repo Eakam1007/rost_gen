@@ -442,6 +442,50 @@ mod tests {
   }
 
   #[test]
+  fn creates_output_directory() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let output_dir_path = temp_dir.path().join("test_dir");
+    let output_dir_path_string = output_dir_path.as_os_str().to_str().unwrap().to_string();
+
+    create_output_directory(&output_dir_path_string);
+    assert!(output_dir_path.is_dir());
+
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn recreates_default_output_directory() {
+    let output_dir_path = path::Path::new(&DEFAULT_OUTPUT_DIR);
+    fs::create_dir_all(output_dir_path).expect("Create test default output dir");
+    File::create(output_dir_path.join("test_file.txt")).expect("Create test file");
+
+    create_output_directory(&DEFAULT_OUTPUT_DIR.to_string());
+
+    assert!(output_dir_path.is_dir());
+    assert!(output_dir_path.read_dir().unwrap().next().is_none());
+
+    fs::remove_dir_all(output_dir_path).expect("Delete test directory");
+  }
+
+  #[test]
+  fn retains_non_default_output_directory_contents() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let output_dir_path = temp_dir.path().join("test_dir");
+    let output_dir_path_string = output_dir_path.as_os_str().to_str().unwrap().to_string();
+    let existing_file_path = output_dir_path.join("test_file.txt");
+    fs::create_dir(&output_dir_path).expect("Create test output dir");
+    File::create(&existing_file_path).expect("Create test file");
+
+    create_output_directory(&output_dir_path_string);
+
+    assert!(output_dir_path.is_dir());
+    assert_eq!(
+      output_dir_path.read_dir().unwrap().next().unwrap().expect("").path(),
+      existing_file_path
+    )
+  }
+
+  #[test]
   fn creates_html_file() {
     let temp_dir = tempfile::tempdir().unwrap();
     let test_input_path = temp_dir.path().join("html_template_test.txt");
