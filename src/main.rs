@@ -479,7 +479,7 @@ mod tests {
     create_output_directory(&output_dir_path_string);
 
     assert!(output_dir_path.is_dir());
-    assert_eq!(
+    assert_ne!(
       output_dir_path.read_dir().unwrap().next().unwrap().expect("").path(),
       existing_file_path
     )
