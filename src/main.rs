@@ -437,6 +437,13 @@ mod tests {
   }
 
   #[test]
+  fn image_link_test() {
+    let input_line = String::from("[First][Second](www.example.com)");
+    let expected_output = "<a href=\"www.example.com\">First</a>";
+    assert_eq!(process_link_markdown(&input_line), expected_output);
+  }
+
+  #[test]
   fn process_link_markdown_returns_empty_string_arg() {
     assert_eq!(process_link_markdown(&String::from("")), "");
   }
@@ -514,6 +521,53 @@ mod tests {
     assert_eq!(converted_string, expected_output);
 
     drop(test_input_file);
+    temp_dir.close().expect("Delete test directory");
+  }
+
+  #[test]
+  fn creates_html_in_directory() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let test_input_path1 = temp_dir.path().join("html_template_test1.txt");
+    let test_input_path2 = temp_dir.path().join("html_template_test2.txt");
+    let mut test_input_file1 = File::create(&test_input_path1).unwrap();
+    let mut test_input_file2 = File::create(&test_input_path2).unwrap();
+    writeln!(test_input_file1, "test1").expect("Create test input file");
+    writeln!(test_input_file2, "test2").expect("Create test input file");
+
+    let out_dir = "./out".to_owned();
+    fs::create_dir_all(&out_dir).expect("Create test output directory");
+
+    let input_dir = fs::read_dir(&temp_dir).expect("Read input directory");
+    convert_files_in_directory(input_dir, &out_dir, "en");
+
+    let expected_output1 = HTML_TEMPLATE
+      .replace("{{title}}", "html_template_test1")
+      .replace("{{lang}}", "en")
+      + "\t<p>\n\t\ttest1\n\n\t</p>\n</body>\n</html>\n";
+    let expected_output2 = HTML_TEMPLATE
+      .replace("{{title}}", "html_template_test2")
+      .replace("{{lang}}", "en")
+      + "\t<p>\n\t\ttest2\n\n\t</p>\n</body>\n</html>\n";
+
+    let output_file1 = "./out/html_template_test1.html";
+    let output_file2 = "./out/html_template_test2.html";
+    let mut test_output_file1 = File::open(output_file1).unwrap();
+    let mut test_output_file2 = File::open(output_file2).unwrap();
+    let mut converted_string1 = String::new();
+    let mut converted_string2 = String::new();
+    test_output_file1
+      .read_to_string(&mut converted_string1)
+      .expect("Read test output file");
+    test_output_file2
+      .read_to_string(&mut converted_string2)
+      .expect("Read test output file");
+
+    assert_eq!(converted_string1, expected_output1);
+    assert_eq!(converted_string2, expected_output2);
+
+    fs::remove_dir_all(&out_dir).expect("Remove output directory");
+    drop(test_input_file1);
+    drop(test_input_file2);
     temp_dir.close().expect("Delete test directory");
   }
 }
