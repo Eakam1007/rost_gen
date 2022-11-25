@@ -13,6 +13,7 @@ exclude = [
   ".vscode/*",
   ".gitignore",
   "rustfmt.toml",
+  ".github/*"
 ]
 
 [dependencies]
