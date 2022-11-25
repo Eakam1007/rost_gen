@@ -9,7 +9,10 @@ license = "MIT"
 keywords = ["ssg"]
 categories = ["command-line-utilities"]
 exclude = [
-  "docs/*"
+  "docs/*",
+  ".vscode/*",
+  ".gitignore",
+  "rustfmt.toml",
 ]
 
 [dependencies]
