@@ -2,15 +2,22 @@
 A simple static site generator that generates basic .html files from .txt files.
 
 # Getting started
-This **project** requires that you have [Rust and Cargo](https://www.rust-lang.org/learn/get-started) installed on your device.  
+This **project** requires that you have [Rust and Cargo](https://www.rust-lang.org/learn/get-started) installed on your device.
+Run the following to install in your desired directory:
 
 ```
-git clone git@github.com:Eakam1007/rost_gen.git
-cd rost_gen
-cargo build --release
+cargo install rost_gen --root <path_to_directory>
 ```
-This will create the optimized build in the ./target/release directory. Run the project by changing into the release directory:  
-``` cd target/release ```
+
+For example: 
+```
+cargo install rost_gen --root /my_dir
+```
+This will install the executable inside the ./my_dir/bin directory.
+Run the project by changing into the install directory:  
+``` 
+cd /my_dir/bin 
+```
 
 # Usage
 ```
