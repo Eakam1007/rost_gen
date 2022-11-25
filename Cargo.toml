@@ -8,6 +8,9 @@ repository = "https://github.com/Eakam1007/rost_gen"
 license = "MIT"
 keywords = ["ssg"]
 categories = ["command-line-utilities"]
+exclude = [
+  "docs/*"
+]
 
 [dependencies]
 clap = { version = "4.0.7", features = ["derive"] }
