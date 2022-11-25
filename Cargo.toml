@@ -1,6 +1,6 @@
 [package]
 name = "rost_gen"
-version = "0.9.0"
+version = "1.0.0"
 edition = "2021"
 description = "A simple static site generator"
 readme = "README.md"
